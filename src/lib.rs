@@ -2,7 +2,7 @@ use reqwest::blocking::Client as HttpClient;
 use serde::Serialize;
 use std::error::Error;
 
-const BASE_URL: &'static str = "https://api.venice.ai/api/v1";
+const BASE_URL: &str = "https://api.venice.ai/api/v1";
 
 pub mod chat;
 pub mod models;
