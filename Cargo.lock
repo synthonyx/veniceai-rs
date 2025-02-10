@@ -1025,6 +1025,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "synthonyx-kit"
+version = "0.1.0"
+source = "git+https://github.com/synthonyx/kit-rs.git#a0e67de80278fff01917c55a43defd27940ad476"
+dependencies = [
+ "dotenv",
+]
+
+[[package]]
 name = "system-configuration"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1218,6 +1226,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "synthonyx-kit",
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-use super::Client;
+use super::{config::Config, traits::ChatAdapter, API};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
@@ -74,28 +74,33 @@ pub struct Usage {
     pub total_tokens: u32,
 }
 
-impl Client {
-    pub fn chat(&self, req: ChatRequest) -> Result<ChatResponse, Box<dyn Error>> {
-        let res = serde_json::from_str(&self.call_with_body("chat/completions", req)?)?;
+impl<T: Config> API<T> {
+    pub fn chat(req: ChatRequest) -> Result<ChatResponse, Box<dyn Error>> {
+        let res = serde_json::from_str(&API::<T>::call_with_body("chat/completions", req)?)?;
         Ok(res)
+    }
+}
+
+impl<T: Config> ChatAdapter for API<T> {
+    fn chat(req: ChatRequest) -> Result<ChatResponse, Box<dyn Error>> {
+        API::<T>::chat(req)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use dotenv::dotenv;
-    use std::env;
+    use crate::api::config::Config;
+    use synthonyx_kit::env_param;
 
     use super::*;
 
     #[test]
     fn chat_works() {
-        // Load environment variables from .env file
-        dotenv().ok();
-
-        // Get the API key from the environment variable
-        let api_key = env::var("TEST_API_KEY").expect("TEST_API_KEY must be set");
-        let client = Client::new(api_key);
+        struct Settings;
+        env_param!(ApiKey, String, "TEST_API_KEY");
+        impl Config for Settings {
+            type ApiKey = ApiKey;
+        }
 
         let messages = vec![
             Message {
@@ -109,7 +114,7 @@ mod tests {
         ];
 
         let request = ChatRequest::new("llama-3.1-405b".to_string(), messages);
-        let result = client.chat(request).unwrap();
+        let result = API::<Settings>::chat(request).unwrap();
         assert_eq!(result.choices.len(), 1);
         assert!(result
             .choices
